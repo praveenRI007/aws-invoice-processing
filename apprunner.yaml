@@ -14,7 +14,7 @@ run:
 
   env:
     - name: S3_BUCKET
-      value: "invoice-uploads"
+      value: "invoice-processing-2025"
     - name: DYNAMODB_TABLE
       value: "invoices"
     - name: AWS_REGION
