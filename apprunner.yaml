@@ -4,11 +4,11 @@ runtime: python3
 build:
   commands:
     build:
-      - pip install -r streamlit_app/requirements.txt
+      - pip install -r aws-invoice-processing/requirements.txt
 
 run:
   runtime-version: 3.11.0
-  command: streamlit run app.py --server.port 8080 --server.address 0.0.0.0
+  command: streamlit run aws-invoice-processing/app.py --server.port 8080 --server.address 0.0.0.0
   network:
     port: 8080
 
