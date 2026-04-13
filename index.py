@@ -56,7 +56,7 @@ async def upload_file(
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     safe_name = f"{timestamp}_{unique_id}{ext}"
 
-    folder = folder.strip("/") if folder else "uploads"
+    folder = "raw"
     s3_key = f"{folder}/{safe_name}"
 
     try:

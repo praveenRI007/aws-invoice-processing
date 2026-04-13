@@ -190,32 +190,53 @@
     uploadBtn.disabled = false;
   }
 
-  async function startUpload() {
-    if (!chosenFile) return;
-    uploadBtn.disabled = true;
-    uploadBtn.textContent = 'Uploading…';
+async function startUpload() {
+  if (!chosenFile) return;
 
-    const fd = new FormData();
-    fd.append('file', chosenFile);
-    fd.append('folder', 'invoices');
-    fd.append('make_public', false);
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading…';
 
-    try {
-      const res  = await fetch('/upload', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        showPopup('success', 'Upload Successful!', '"' + data.file_name + '" has been saved to S3.');
-        reset();
-      } else {
-        showPopup('error', 'Upload Failed', data.detail || 'Something went wrong. Please try again.');
-      }
-    } catch {
-      showPopup('error', 'Network Error', 'Could not reach the server. Please check your connection.');
+  const fd = new FormData();
+  fd.append('file', chosenFile);
+
+  // 👇 CHANGE THIS LINE
+  fd.append('folder', 'raw');
+
+  fd.append('make_public', false);
+
+  try {
+    const res = await fetch('/upload', {
+      method: 'POST',
+      body: fd
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      showPopup(
+        'success',
+        'Upload Successful!',
+        `"${data.file_name}" uploaded to S3`
+      );
+      reset();
+    } else {
+      showPopup(
+        'error',
+        'Upload Failed',
+        data.detail || 'Something went wrong.'
+      );
     }
-
-    uploadBtn.textContent = 'Upload';
-    uploadBtn.disabled = !chosenFile;
+  } catch (err) {
+    showPopup(
+      'error',
+      'Network Error',
+      'Cannot reach server.'
+    );
   }
+
+  uploadBtn.textContent = 'Upload';
+  uploadBtn.disabled = !chosenFile;
+}
 
   function reset() {
     chosenFile = null;
