@@ -9,6 +9,9 @@ from typing import Optional
 import uuid
 from datetime import datetime
 import logging
+import os
+
+
 
 app = FastAPI(title="S3 File Uploader", version="1.1.0")
 
@@ -115,7 +118,7 @@ async def get_invoices():
             port=5432,
             database="postgres",
             user="invoice",
-            password="f(i#-Blr#Zch8H7y5rh[Pn~jk7]]"
+            password=str(os.getenv("DB_PASSWORD"))
         )
 
         cursor = conn.cursor()
