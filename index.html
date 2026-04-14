@@ -276,7 +276,7 @@ async function startUpload() {
   container.innerHTML = "Loading...";
 
   try {
-    const res = await fetch("/invoices");
+    const res = await fetch("https://jimszameyc.us-east-1.awsapprunner.com/invoices");
     const data = await res.json();
 
     if (!data.success) {
