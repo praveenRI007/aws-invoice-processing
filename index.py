@@ -1,4 +1,5 @@
 import os
+import pg8000
 import boto3
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,7 +26,7 @@ app.add_middleware(
 
 # Config via App Runner Environment Variables
 AWS_REGION     = os.getenv("AWS_REGION", "us-east-1")
-S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "invoice-processing-2028")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "invoice-processing-2025")
 
 
 def get_s3_client():
@@ -104,7 +105,39 @@ async def upload_file(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/invoices")
+async def get_invoices():
+    print("[DEBUG] Fetching invoices from PostgreSQL")
 
+    try:
+        conn = pg8000.connect(
+            host="invoice-processing.cbyy0kug2rfp.eu-west-1.rds.amazonaws.com",
+            port=5432,
+            database="postgres",
+            user="invoice",
+            password="f(i#-Blr#Zch8H7y5rh[Pn~jk7]]"
+        )
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT * FROM invoice
+            ORDER BY id DESC
+        """)
+
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+
+        result = [dict(zip(columns, row)) for row in rows]
+
+        cursor.close()
+        conn.close()
+
+        return {"success": True, "data": result}
+
+    except Exception as e:
+        print(f"[ERROR] DB error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
 async def health():
