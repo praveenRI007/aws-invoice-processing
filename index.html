@@ -163,11 +163,16 @@
   let chosenFile = null;
 
   function switchTab(name, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+
+  if (name === "dashboard") {
+    loadInvoices();
   }
+}
 
   const dropZone     = document.getElementById('dropZone');
   const fileInput    = document.getElementById('fileInput');
@@ -264,6 +269,73 @@ async function startUpload() {
     if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
     return (b / 1048576).toFixed(1) + ' MB';
   }
+
+
+  async function loadInvoices() {
+  const container = document.getElementById("tableContainer");
+  container.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch("/invoices");
+    const data = await res.json();
+
+    if (!data.success) {
+      container.innerHTML = "Failed to load invoices";
+      return;
+    }
+
+    const rows = data.data;
+
+    if (rows.length === 0) {
+      container.innerHTML = "<p>No invoices found</p>";
+      return;
+    }
+
+    const columns = Object.keys(rows[0]);
+
+    let html = `
+      <table style="
+        width:100%;
+        border-collapse:collapse;
+        background:white;
+        border-radius:10px;
+        overflow:hidden;
+      ">
+        <thead>
+          <tr>
+    `;
+
+    for (const col of columns) {
+      html += `<th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">${col}</th>`;
+    }
+
+    html += `
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    for (const row of rows) {
+      html += "<tr>";
+      for (const col of columns) {
+        html += `<td style="padding:10px;border-bottom:1px solid #f0f0f0;">
+          ${row[col] ?? ""}
+        </td>`;
+      }
+      html += "</tr>";
+    }
+
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    container.innerHTML = html;
+
+  } catch (err) {
+    container.innerHTML = "Error loading invoices";
+  }
+}
 </script>
 </body>
 </html>
